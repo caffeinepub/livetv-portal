@@ -10,6 +10,13 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface Account {
+  'id' : bigint,
+  'username' : string,
+  'password' : string,
+  'role' : string,
+}
+export interface ApiSettings { 'enabled' : boolean, 'apiToken' : string }
 export interface Category { 'id' : bigint, 'name' : string, 'slug' : string }
 export interface Channel {
   'id' : bigint,
@@ -21,20 +28,51 @@ export interface Channel {
   'category' : string,
   'streamUrl' : string,
 }
+export interface ChannelImport {
+  'order' : bigint,
+  'name' : string,
+  'description' : string,
+  'isActive' : boolean,
+  'logoUrl' : string,
+  'category' : string,
+  'streamUrl' : string,
+}
+export interface SiteSettings {
+  'tagline' : string,
+  'maintenanceMode' : boolean,
+  'siteName' : string,
+  'logoUrl' : string,
+  'contactEmail' : string,
+  'footerText' : string,
+}
 export interface _SERVICE {
-  'addCategory' : ActorMethod<[Category, string], undefined>,
+  'addAccount' : ActorMethod<[string, string, string, string], undefined>,
+  'addCategory' : ActorMethod<[string, string, string], undefined>,
   'addChannel' : ActorMethod<[Channel, string], undefined>,
   'adminLogin' : ActorMethod<[string, string], string>,
   'adminLogout' : ActorMethod<[string], boolean>,
+  'deleteAccount' : ActorMethod<[string, string], undefined>,
   'deleteCategory' : ActorMethod<[bigint, string], undefined>,
   'deleteChannel' : ActorMethod<[bigint, string], undefined>,
+  'getAccounts' : ActorMethod<[string], Array<Account>>,
+  'getAccountsDebug' : ActorMethod<[], Array<[string, Account]>>,
   'getAllChannels' : ActorMethod<[string], Array<Channel>>,
+  'getApiSettings' : ActorMethod<[string], ApiSettings>,
   'getCategories' : ActorMethod<[], Array<Category>>,
+  'getCategoriesDebug' : ActorMethod<[], Array<[string, Category]>>,
   'getChannelById' : ActorMethod<[bigint], Channel>,
   'getChannels' : ActorMethod<[], Array<Channel>>,
+  'getChannelsApi' : ActorMethod<[string], Array<Channel>>,
   'getChannelsByCategory' : ActorMethod<[string], Array<Channel>>,
+  'getChannelsDebug' : ActorMethod<[], Array<[string, Channel]>>,
+  'getMyRole' : ActorMethod<[string], string>,
+  'getSiteSettings' : ActorMethod<[], SiteSettings>,
+  'importChannels' : ActorMethod<[Array<ChannelImport>, string], bigint>,
+  'updateAccount' : ActorMethod<[string, string, string, string], undefined>,
+  'updateApiSettings' : ActorMethod<[ApiSettings, string], undefined>,
   'updateCategory' : ActorMethod<[Category, string], undefined>,
   'updateChannel' : ActorMethod<[Channel, string], undefined>,
+  'updateSiteSettings' : ActorMethod<[SiteSettings, string], undefined>,
   'validateSession' : ActorMethod<[string], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;

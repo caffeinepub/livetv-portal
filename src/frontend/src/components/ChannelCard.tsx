@@ -32,7 +32,7 @@ export function ChannelCard({ channel, featured = false }: ChannelCardProps) {
         className="relative bg-black flex items-center justify-center overflow-hidden"
         style={{ aspectRatio: "16/9", minHeight: featured ? "180px" : "110px" }}
       >
-        {!imgError && channel.logoUrl ? (
+        {channel.logoUrl && !imgError ? (
           <img
             src={channel.logoUrl}
             alt={channel.name}

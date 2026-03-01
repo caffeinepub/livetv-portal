@@ -8,11 +8,6 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const Category = IDL.Record({
-  'id' : IDL.Nat,
-  'name' : IDL.Text,
-  'slug' : IDL.Text,
-});
 export const Channel = IDL.Record({
   'id' : IDL.Nat,
   'order' : IDL.Nat,
@@ -23,32 +18,89 @@ export const Channel = IDL.Record({
   'category' : IDL.Text,
   'streamUrl' : IDL.Text,
 });
+export const Account = IDL.Record({
+  'id' : IDL.Nat,
+  'username' : IDL.Text,
+  'password' : IDL.Text,
+  'role' : IDL.Text,
+});
+export const ApiSettings = IDL.Record({
+  'enabled' : IDL.Bool,
+  'apiToken' : IDL.Text,
+});
+export const Category = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Text,
+  'slug' : IDL.Text,
+});
+export const SiteSettings = IDL.Record({
+  'tagline' : IDL.Text,
+  'maintenanceMode' : IDL.Bool,
+  'siteName' : IDL.Text,
+  'logoUrl' : IDL.Text,
+  'contactEmail' : IDL.Text,
+  'footerText' : IDL.Text,
+});
+export const ChannelImport = IDL.Record({
+  'order' : IDL.Nat,
+  'name' : IDL.Text,
+  'description' : IDL.Text,
+  'isActive' : IDL.Bool,
+  'logoUrl' : IDL.Text,
+  'category' : IDL.Text,
+  'streamUrl' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
-  'addCategory' : IDL.Func([Category, IDL.Text], [], []),
+  'addAccount' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Text], [], []),
+  'addCategory' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
   'addChannel' : IDL.Func([Channel, IDL.Text], [], []),
   'adminLogin' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
   'adminLogout' : IDL.Func([IDL.Text], [IDL.Bool], []),
+  'deleteAccount' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'deleteCategory' : IDL.Func([IDL.Nat, IDL.Text], [], []),
   'deleteChannel' : IDL.Func([IDL.Nat, IDL.Text], [], []),
+  'getAccounts' : IDL.Func([IDL.Text], [IDL.Vec(Account)], ['query']),
+  'getAccountsDebug' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(IDL.Text, Account))],
+      ['query'],
+    ),
   'getAllChannels' : IDL.Func([IDL.Text], [IDL.Vec(Channel)], ['query']),
+  'getApiSettings' : IDL.Func([IDL.Text], [ApiSettings], ['query']),
   'getCategories' : IDL.Func([], [IDL.Vec(Category)], ['query']),
+  'getCategoriesDebug' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(IDL.Text, Category))],
+      ['query'],
+    ),
   'getChannelById' : IDL.Func([IDL.Nat], [Channel], ['query']),
   'getChannels' : IDL.Func([], [IDL.Vec(Channel)], ['query']),
+  'getChannelsApi' : IDL.Func([IDL.Text], [IDL.Vec(Channel)], ['query']),
   'getChannelsByCategory' : IDL.Func([IDL.Text], [IDL.Vec(Channel)], ['query']),
+  'getChannelsDebug' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(IDL.Text, Channel))],
+      ['query'],
+    ),
+  'getMyRole' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
+  'getSiteSettings' : IDL.Func([], [SiteSettings], ['query']),
+  'importChannels' : IDL.Func(
+      [IDL.Vec(ChannelImport), IDL.Text],
+      [IDL.Nat],
+      [],
+    ),
+  'updateAccount' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Text], [], []),
+  'updateApiSettings' : IDL.Func([ApiSettings, IDL.Text], [], []),
   'updateCategory' : IDL.Func([Category, IDL.Text], [], []),
   'updateChannel' : IDL.Func([Channel, IDL.Text], [], []),
+  'updateSiteSettings' : IDL.Func([SiteSettings, IDL.Text], [], []),
   'validateSession' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const Category = IDL.Record({
-    'id' : IDL.Nat,
-    'name' : IDL.Text,
-    'slug' : IDL.Text,
-  });
   const Channel = IDL.Record({
     'id' : IDL.Nat,
     'order' : IDL.Nat,
@@ -59,25 +111,91 @@ export const idlFactory = ({ IDL }) => {
     'category' : IDL.Text,
     'streamUrl' : IDL.Text,
   });
+  const Account = IDL.Record({
+    'id' : IDL.Nat,
+    'username' : IDL.Text,
+    'password' : IDL.Text,
+    'role' : IDL.Text,
+  });
+  const ApiSettings = IDL.Record({
+    'enabled' : IDL.Bool,
+    'apiToken' : IDL.Text,
+  });
+  const Category = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Text,
+    'slug' : IDL.Text,
+  });
+  const SiteSettings = IDL.Record({
+    'tagline' : IDL.Text,
+    'maintenanceMode' : IDL.Bool,
+    'siteName' : IDL.Text,
+    'logoUrl' : IDL.Text,
+    'contactEmail' : IDL.Text,
+    'footerText' : IDL.Text,
+  });
+  const ChannelImport = IDL.Record({
+    'order' : IDL.Nat,
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+    'isActive' : IDL.Bool,
+    'logoUrl' : IDL.Text,
+    'category' : IDL.Text,
+    'streamUrl' : IDL.Text,
+  });
   
   return IDL.Service({
-    'addCategory' : IDL.Func([Category, IDL.Text], [], []),
+    'addAccount' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Text], [], []),
+    'addCategory' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
     'addChannel' : IDL.Func([Channel, IDL.Text], [], []),
     'adminLogin' : IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
     'adminLogout' : IDL.Func([IDL.Text], [IDL.Bool], []),
+    'deleteAccount' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'deleteCategory' : IDL.Func([IDL.Nat, IDL.Text], [], []),
     'deleteChannel' : IDL.Func([IDL.Nat, IDL.Text], [], []),
+    'getAccounts' : IDL.Func([IDL.Text], [IDL.Vec(Account)], ['query']),
+    'getAccountsDebug' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, Account))],
+        ['query'],
+      ),
     'getAllChannels' : IDL.Func([IDL.Text], [IDL.Vec(Channel)], ['query']),
+    'getApiSettings' : IDL.Func([IDL.Text], [ApiSettings], ['query']),
     'getCategories' : IDL.Func([], [IDL.Vec(Category)], ['query']),
+    'getCategoriesDebug' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, Category))],
+        ['query'],
+      ),
     'getChannelById' : IDL.Func([IDL.Nat], [Channel], ['query']),
     'getChannels' : IDL.Func([], [IDL.Vec(Channel)], ['query']),
+    'getChannelsApi' : IDL.Func([IDL.Text], [IDL.Vec(Channel)], ['query']),
     'getChannelsByCategory' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(Channel)],
         ['query'],
       ),
+    'getChannelsDebug' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, Channel))],
+        ['query'],
+      ),
+    'getMyRole' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
+    'getSiteSettings' : IDL.Func([], [SiteSettings], ['query']),
+    'importChannels' : IDL.Func(
+        [IDL.Vec(ChannelImport), IDL.Text],
+        [IDL.Nat],
+        [],
+      ),
+    'updateAccount' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [],
+        [],
+      ),
+    'updateApiSettings' : IDL.Func([ApiSettings, IDL.Text], [], []),
     'updateCategory' : IDL.Func([Category, IDL.Text], [], []),
     'updateChannel' : IDL.Func([Channel, IDL.Text], [], []),
+    'updateSiteSettings' : IDL.Func([SiteSettings, IDL.Text], [], []),
     'validateSession' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
   });
 };

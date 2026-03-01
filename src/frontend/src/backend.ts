@@ -89,6 +89,23 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface ChannelImport {
+    order: bigint;
+    name: string;
+    description: string;
+    isActive: boolean;
+    logoUrl: string;
+    category: string;
+    streamUrl: string;
+}
+export interface SiteSettings {
+    tagline: string;
+    maintenanceMode: boolean;
+    siteName: string;
+    logoUrl: string;
+    contactEmail: string;
+    footerText: string;
+}
 export interface Channel {
     id: bigint;
     order: bigint;
@@ -99,40 +116,78 @@ export interface Channel {
     category: string;
     streamUrl: string;
 }
+export interface ApiSettings {
+    enabled: boolean;
+    apiToken: string;
+}
+export interface Account {
+    id: bigint;
+    username: string;
+    password: string;
+    role: string;
+}
 export interface Category {
     id: bigint;
     name: string;
     slug: string;
 }
 export interface backendInterface {
-    addCategory(category: Category, token: string): Promise<void>;
+    addAccount(username: string, password: string, role: string, token: string): Promise<void>;
+    addCategory(name: string, slug: string, token: string): Promise<void>;
     addChannel(channel: Channel, token: string): Promise<void>;
     adminLogin(username: string, password: string): Promise<string>;
     adminLogout(token: string): Promise<boolean>;
+    deleteAccount(username: string, token: string): Promise<void>;
     deleteCategory(id: bigint, token: string): Promise<void>;
     deleteChannel(id: bigint, token: string): Promise<void>;
+    getAccounts(token: string): Promise<Array<Account>>;
+    getAccountsDebug(): Promise<Array<[string, Account]>>;
     getAllChannels(token: string): Promise<Array<Channel>>;
+    getApiSettings(token: string): Promise<ApiSettings>;
     getCategories(): Promise<Array<Category>>;
+    getCategoriesDebug(): Promise<Array<[string, Category]>>;
     getChannelById(id: bigint): Promise<Channel>;
     getChannels(): Promise<Array<Channel>>;
+    getChannelsApi(apiToken: string): Promise<Array<Channel>>;
     getChannelsByCategory(categorySlug: string): Promise<Array<Channel>>;
+    getChannelsDebug(): Promise<Array<[string, Channel]>>;
+    getMyRole(token: string): Promise<string>;
+    getSiteSettings(): Promise<SiteSettings>;
+    importChannels(channelsToImport: Array<ChannelImport>, token: string): Promise<bigint>;
+    updateAccount(username: string, password: string, role: string, token: string): Promise<void>;
+    updateApiSettings(settings: ApiSettings, token: string): Promise<void>;
     updateCategory(category: Category, token: string): Promise<void>;
     updateChannel(channel: Channel, token: string): Promise<void>;
+    updateSiteSettings(newSettings: SiteSettings, token: string): Promise<void>;
     validateSession(token: string): Promise<boolean>;
 }
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
-    async addCategory(arg0: Category, arg1: string): Promise<void> {
+    async addAccount(arg0: string, arg1: string, arg2: string, arg3: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.addCategory(arg0, arg1);
+                const result = await this.actor.addAccount(arg0, arg1, arg2, arg3);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.addCategory(arg0, arg1);
+            const result = await this.actor.addAccount(arg0, arg1, arg2, arg3);
+            return result;
+        }
+    }
+    async addCategory(arg0: string, arg1: string, arg2: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addCategory(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addCategory(arg0, arg1, arg2);
             return result;
         }
     }
@@ -178,6 +233,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async deleteAccount(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteAccount(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteAccount(arg0, arg1);
+            return result;
+        }
+    }
     async deleteCategory(arg0: bigint, arg1: string): Promise<void> {
         if (this.processError) {
             try {
@@ -206,6 +275,34 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getAccounts(arg0: string): Promise<Array<Account>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAccounts(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAccounts(arg0);
+            return result;
+        }
+    }
+    async getAccountsDebug(): Promise<Array<[string, Account]>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAccountsDebug();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAccountsDebug();
+            return result;
+        }
+    }
     async getAllChannels(arg0: string): Promise<Array<Channel>> {
         if (this.processError) {
             try {
@@ -220,6 +317,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getApiSettings(arg0: string): Promise<ApiSettings> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getApiSettings(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getApiSettings(arg0);
+            return result;
+        }
+    }
     async getCategories(): Promise<Array<Category>> {
         if (this.processError) {
             try {
@@ -231,6 +342,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getCategories();
+            return result;
+        }
+    }
+    async getCategoriesDebug(): Promise<Array<[string, Category]>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCategoriesDebug();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCategoriesDebug();
             return result;
         }
     }
@@ -262,6 +387,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getChannelsApi(arg0: string): Promise<Array<Channel>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getChannelsApi(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getChannelsApi(arg0);
+            return result;
+        }
+    }
     async getChannelsByCategory(arg0: string): Promise<Array<Channel>> {
         if (this.processError) {
             try {
@@ -273,6 +412,90 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getChannelsByCategory(arg0);
+            return result;
+        }
+    }
+    async getChannelsDebug(): Promise<Array<[string, Channel]>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getChannelsDebug();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getChannelsDebug();
+            return result;
+        }
+    }
+    async getMyRole(arg0: string): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getMyRole(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMyRole(arg0);
+            return result;
+        }
+    }
+    async getSiteSettings(): Promise<SiteSettings> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getSiteSettings();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getSiteSettings();
+            return result;
+        }
+    }
+    async importChannels(arg0: Array<ChannelImport>, arg1: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.importChannels(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.importChannels(arg0, arg1);
+            return result;
+        }
+    }
+    async updateAccount(arg0: string, arg1: string, arg2: string, arg3: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateAccount(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateAccount(arg0, arg1, arg2, arg3);
+            return result;
+        }
+    }
+    async updateApiSettings(arg0: ApiSettings, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateApiSettings(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateApiSettings(arg0, arg1);
             return result;
         }
     }
@@ -301,6 +524,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.updateChannel(arg0, arg1);
+            return result;
+        }
+    }
+    async updateSiteSettings(arg0: SiteSettings, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateSiteSettings(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateSiteSettings(arg0, arg1);
             return result;
         }
     }

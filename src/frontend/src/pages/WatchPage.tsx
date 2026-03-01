@@ -49,61 +49,6 @@ export function WatchPage() {
     <div className="min-h-screen flex flex-col bg-background dark">
       <Navbar />
 
-      {/* Channel Cover Banner */}
-      {isLoading ? (
-        <div className="w-full h-40 bg-card border-b border-tv-border animate-pulse" />
-      ) : displayChannel ? (
-        <div className="relative w-full h-40 sm:h-48 bg-black border-b border-tv-border overflow-hidden">
-          {/* Background blur layer */}
-          {displayChannel.logoUrl && (
-            <div
-              className="absolute inset-0 scale-110 blur-2xl opacity-30"
-              style={{
-                backgroundImage: `url(${displayChannel.logoUrl})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            />
-          )}
-          {/* Dark gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-          {/* Centered logo */}
-          <div className="relative h-full flex items-center justify-center">
-            {displayChannel.logoUrl ? (
-              <img
-                src={displayChannel.logoUrl}
-                alt={displayChannel.name}
-                className="max-h-28 sm:max-h-36 max-w-xs object-contain drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]"
-                onError={(e) => {
-                  const el = e.currentTarget as HTMLImageElement;
-                  el.style.display = "none";
-                  const fallback = el.nextElementSibling as HTMLElement | null;
-                  if (fallback) fallback.style.display = "flex";
-                }}
-              />
-            ) : null}
-            <div
-              className="flex-col items-center gap-2"
-              style={{ display: displayChannel.logoUrl ? "none" : "flex" }}
-            >
-              <Tv className="w-16 h-16 text-white/30" />
-              <span className="font-display font-bold text-white/60 text-lg">
-                {displayChannel.name}
-              </span>
-            </div>
-          </div>
-          {/* Live badge */}
-          {displayChannel.isActive && (
-            <div className="absolute top-3 right-4">
-              <span className="flex items-center gap-1.5 bg-tv-red text-white text-xs font-bold px-3 py-1 rounded-sm uppercase tracking-wide shadow-lg">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-red" />
-                LIVE
-              </span>
-            </div>
-          )}
-        </div>
-      ) : null}
-
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6">
         {/* Back button */}
         <button

@@ -3,19 +3,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import {
   Globe,
-  Loader2,
   Newspaper,
   Play,
   Radio,
   TrendingUp,
   Tv,
+  WifiOff,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { ChannelCard } from "../components/ChannelCard";
 import { Footer } from "../components/Footer";
 import { Navbar } from "../components/Navbar";
-import { useCategories, useChannels } from "../hooks/useQueries";
+import {
+  useCategories,
+  useChannels,
+  useGetSiteSettings,
+} from "../hooks/useQueries";
 
 // Demo/seed channels displayed when backend returns empty
 const DEMO_CHANNELS = [
@@ -154,6 +158,10 @@ export function HomePage() {
   const [activeCategory, setActiveCategory] = useState("");
   const { data: channelsData, isLoading } = useChannels();
   const { data: _categoriesData } = useCategories();
+  const { data: siteSettings } = useGetSiteSettings();
+
+  const siteName = siteSettings?.siteName || "jagolive";
+  const isInMaintenance = siteSettings?.maintenanceMode === true;
 
   const channels = useMemo(() => {
     const source =
@@ -173,6 +181,45 @@ export function HomePage() {
       channelsData && channelsData.length > 0 ? channelsData : DEMO_CHANNELS;
     return source.filter((c) => c.isActive).length;
   }, [channelsData]);
+
+  // Maintenance mode: show full-page message
+  if (isInMaintenance) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background dark text-center px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md"
+        >
+          <div className="w-20 h-20 bg-amber-500/10 border border-amber-500/30 rounded-full flex items-center justify-center mx-auto mb-6">
+            <WifiOff className="w-10 h-10 text-amber-400" />
+          </div>
+          <h1 className="font-display font-bold text-3xl text-foreground mb-3">
+            {siteName}
+          </h1>
+          <h2 className="font-display font-semibold text-xl text-amber-400 mb-4">
+            Under Maintenance
+          </h2>
+          <p className="text-muted-foreground leading-relaxed">
+            We're currently performing scheduled maintenance to improve your
+            experience. Please check back shortly.
+          </p>
+          {siteSettings?.contactEmail && (
+            <p className="text-muted-foreground text-sm mt-4">
+              Questions? Contact us at{" "}
+              <a
+                href={`mailto:${siteSettings.contactEmail}`}
+                className="text-tv-red hover:underline"
+              >
+                {siteSettings.contactEmail}
+              </a>
+            </p>
+          )}
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background dark">
@@ -198,7 +245,8 @@ export function HomePage() {
                   {liveCount} Live Channels
                 </Badge>
                 <h1 className="font-display font-bold text-3xl sm:text-4xl text-foreground leading-tight mb-3">
-                  Watch Bangladesh's Best TV Channels Live
+                  {siteSettings?.tagline ||
+                    "Watch Bangladesh's Best TV Channels Live"}
                 </h1>
                 <p className="text-muted-foreground text-sm leading-relaxed mb-6">
                   Stream Bangla TV, news, sports, radio, and international

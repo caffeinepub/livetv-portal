@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Category, Channel } from "../backend.d.ts";
+import type {
+  Account,
+  ApiSettings,
+  Category,
+  Channel,
+  ChannelImport,
+  SiteSettings,
+} from "../backend.d.ts";
 import { useActor } from "./useActor";
 
 // ── Auth ────────────────────────────────────────────────────────────────────
@@ -14,6 +21,19 @@ export function useValidateSession(token: string | null) {
     },
     enabled: !!actor && !isFetching && !!token,
     staleTime: 30_000,
+  });
+}
+
+export function useGetMyRole(token: string | null) {
+  const { actor, isFetching } = useActor();
+  return useQuery<string>({
+    queryKey: ["myRole", token],
+    queryFn: async () => {
+      if (!actor || !token) return "";
+      return actor.getMyRole(token);
+    },
+    enabled: !!actor && !isFetching && !!token,
+    staleTime: 60_000,
   });
 }
 
@@ -132,7 +152,7 @@ export function useAddCategory() {
       token,
     }: { category: Category; token: string }) => {
       if (!actor) throw new Error("Not connected");
-      return actor.addCategory(category, token);
+      return actor.addCategory(category.name, category.slug, token);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
   });
@@ -165,6 +185,159 @@ export function useDeleteCategory() {
   });
 }
 
+// ── Accounts ────────────────────────────────────────────────────────────────
+
+export function useGetAccounts(token: string | null) {
+  const { actor, isFetching } = useActor();
+  return useQuery<Account[]>({
+    queryKey: ["accounts", token],
+    queryFn: async () => {
+      if (!actor || !token) return [];
+      return actor.getAccounts(token);
+    },
+    enabled: !!actor && !isFetching && !!token,
+  });
+}
+
+export function useAddAccount() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      username,
+      password,
+      role,
+      token,
+    }: { username: string; password: string; role: string; token: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.addAccount(username, password, role, token);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["accounts"] }),
+  });
+}
+
+export function useUpdateAccount() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      username,
+      password,
+      role,
+      token,
+    }: { username: string; password: string; role: string; token: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.updateAccount(username, password, role, token);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["accounts"] }),
+  });
+}
+
+export function useDeleteAccount() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      username,
+      token,
+    }: { username: string; token: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.deleteAccount(username, token);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["accounts"] }),
+  });
+}
+
+// ── Site Settings ────────────────────────────────────────────────────────────
+
+export function useGetSiteSettings() {
+  const { actor, isFetching } = useActor();
+  return useQuery<SiteSettings>({
+    queryKey: ["siteSettings"],
+    queryFn: async () => {
+      if (!actor) {
+        return {
+          siteName: "jagolive",
+          tagline: "",
+          logoUrl: "",
+          contactEmail: "",
+          footerText: "",
+          maintenanceMode: false,
+        };
+      }
+      return actor.getSiteSettings();
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 60_000,
+  });
+}
+
+export function useUpdateSiteSettings() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      settings,
+      token,
+    }: { settings: SiteSettings; token: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.updateSiteSettings(settings, token);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["siteSettings"] }),
+  });
+}
+
+// ── API Settings ────────────────────────────────────────────────────────────
+
+export function useGetApiSettings(token: string | null) {
+  const { actor, isFetching } = useActor();
+  return useQuery<ApiSettings>({
+    queryKey: ["apiSettings", token],
+    queryFn: async () => {
+      if (!actor || !token) return { enabled: false, apiToken: "" };
+      return actor.getApiSettings(token);
+    },
+    enabled: !!actor && !isFetching && !!token,
+    staleTime: 30_000,
+  });
+}
+
+export function useUpdateApiSettings() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      settings,
+      token,
+    }: { settings: ApiSettings; token: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.updateApiSettings(settings, token);
+    },
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["apiSettings", variables.token] });
+    },
+  });
+}
+
+// ── Import Channels ──────────────────────────────────────────────────────────
+
+export function useImportChannels() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      channelsToImport,
+      token,
+    }: { channelsToImport: Array<ChannelImport>; token: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.importChannels(channelsToImport, token);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["channels"] }),
+  });
+}
+
+// ── Auth (Login/Logout) ──────────────────────────────────────────────────────
+
 export function useAdminLogin() {
   const { actor } = useActor();
   return useMutation({
@@ -188,4 +361,11 @@ export function useAdminLogout() {
   });
 }
 
-export type { Channel, Category };
+export type {
+  Channel,
+  Category,
+  Account,
+  SiteSettings,
+  ApiSettings,
+  ChannelImport,
+};

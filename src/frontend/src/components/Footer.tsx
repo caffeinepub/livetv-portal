@@ -3,8 +3,6 @@ import { Tv } from "lucide-react";
 
 export function Footer() {
   const year = new Date().getFullYear();
-  const hostname =
-    typeof window !== "undefined" ? window.location.hostname : "";
 
   return (
     <footer className="bg-card border-t border-tv-border mt-12">
@@ -94,14 +92,14 @@ export function Footer() {
             © {year} jagolive. All rights reserved.
           </p>
           <p className="text-muted-foreground text-xs">
-            Built with ❤️ using{" "}
+            Maintained by{" "}
             <a
-              href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(hostname)}`}
+              href="https://github.com/sultanarabi161"
               target="_blank"
               rel="noopener noreferrer"
               className="text-tv-red hover:underline"
             >
-              caffeine.ai
+              sultanarabi161
             </a>
           </p>
         </div>
