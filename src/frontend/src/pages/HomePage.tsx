@@ -20,6 +20,49 @@ import {
   useChannels,
   useGetSiteSettings,
 } from "../hooks/useQueries";
+import type { Channel } from "../hooks/useQueries";
+
+// Featured channel card with logo cover support
+function FeaturedChannelCard({ channel }: { channel: Channel }) {
+  const [imgError, setImgError] = useState(false);
+  const hasLogo = !!channel.logoUrl && !imgError;
+
+  return (
+    <div className="relative aspect-video bg-black rounded-xl overflow-hidden border border-tv-border shadow-[0_8px_32px_rgba(0,0,0,0.5)] group cursor-pointer">
+      {/* Background: logo or fallback */}
+      {hasLogo ? (
+        <img
+          src={channel.logoUrl}
+          alt={channel.name}
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-card to-background">
+          <Tv className="w-20 h-20 text-muted-foreground/30" />
+        </div>
+      )}
+
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors" />
+
+      {/* Play button */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-full bg-tv-red/90 group-hover:bg-tv-red flex items-center justify-center shadow-lg transition-colors">
+          <Play className="w-7 h-7 text-white fill-white ml-1" />
+        </div>
+      </div>
+
+      {/* Channel info overlay */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent px-4 py-3">
+        <p className="text-white font-semibold text-sm">{channel.name}</p>
+        <p className="text-white/60 text-xs capitalize">
+          {channel.category.replace(/-/g, " ")}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 // Demo/seed channels displayed when backend returns empty
 const DEMO_CHANNELS = [
@@ -173,7 +216,11 @@ export function HomePage() {
   const featuredChannel = useMemo(() => {
     const source =
       channelsData && channelsData.length > 0 ? channelsData : DEMO_CHANNELS;
-    return source.find((c) => c.isActive) ?? source[0];
+    // Sort by order to get the lowest-order active channel first
+    const sorted = [...source].sort(
+      (a, b) => Number(a.order) - Number(b.order),
+    );
+    return sorted.find((c) => c.isActive) ?? sorted[0];
   }, [channelsData]);
 
   const liveCount = useMemo(() => {
@@ -281,30 +328,7 @@ export function HomePage() {
                   to="/watch/$id"
                   params={{ id: featuredChannel.id.toString() }}
                 >
-                  <div className="relative aspect-video bg-black rounded-xl overflow-hidden border border-tv-border shadow-[0_8px_32px_rgba(0,0,0,0.5)] group cursor-pointer">
-                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-card to-background">
-                      <Tv className="w-20 h-20 text-muted-foreground/30" />
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-tv-red/90 group-hover:bg-tv-red flex items-center justify-center shadow-lg transition-colors">
-                        <Play className="w-7 h-7 text-white fill-white ml-1" />
-                      </div>
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-3">
-                      <p className="text-white font-semibold text-sm">
-                        {featuredChannel.name}
-                      </p>
-                      <p className="text-white/60 text-xs">
-                        {featuredChannel.category}
-                      </p>
-                    </div>
-                    <div className="absolute top-3 left-3">
-                      <span className="flex items-center gap-1 bg-tv-red text-white text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wide">
-                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-red" />
-                        LIVE
-                      </span>
-                    </div>
-                  </div>
+                  <FeaturedChannelCard channel={featuredChannel} />
                 </Link>
               </motion.div>
             )}

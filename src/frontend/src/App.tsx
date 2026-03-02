@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { AdminLoginPage } from "./pages/AdminLoginPage";
+import { ApiChannelsPage } from "./pages/ApiChannelsPage";
 import { CategoryPage } from "./pages/CategoryPage";
 import { HomePage } from "./pages/HomePage";
 import { WatchPage } from "./pages/WatchPage";
@@ -54,12 +55,19 @@ const adminRoute = createRoute({
   component: AdminDashboard,
 });
 
+const apiChannelsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/api/channels",
+  component: ApiChannelsPage,
+});
+
 const routeTree = rootRoute.addChildren([
   homeRoute,
   watchRoute,
   categoryRoute,
   adminLoginRoute,
   adminRoute,
+  apiChannelsRoute,
 ]);
 
 const router = createRouter({

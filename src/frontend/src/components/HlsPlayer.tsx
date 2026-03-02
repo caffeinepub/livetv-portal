@@ -143,16 +143,6 @@ export function HlsPlayer({
           </p>
         </div>
       )}
-
-      {/* LIVE badge */}
-      {playerState === "ready" && (
-        <div className="absolute top-3 left-3 pointer-events-none">
-          <span className="flex items-center gap-1.5 bg-tv-red text-white text-xs font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-red" />
-            LIVE
-          </span>
-        </div>
-      )}
     </div>
   );
 }

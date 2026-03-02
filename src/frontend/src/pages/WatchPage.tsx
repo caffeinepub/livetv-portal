@@ -1,13 +1,68 @@
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { ArrowLeft, Play, Tv } from "lucide-react";
 import { motion } from "motion/react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Footer } from "../components/Footer";
 import { HlsPlayer } from "../components/HlsPlayer";
 import { Navbar } from "../components/Navbar";
 import { useChannelById, useChannels } from "../hooks/useQueries";
+
+// Related channel item with per-item image error state
+function RelatedChannelItem({
+  ch,
+}: { ch: { id: bigint; name: string; logoUrl: string; isActive: boolean } }) {
+  const [imgErr, setImgErr] = useState(false);
+  return (
+    <Link
+      to="/watch/$id"
+      params={{ id: ch.id.toString() }}
+      className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors group"
+    >
+      <div className="w-12 h-10 bg-black rounded flex items-center justify-center flex-shrink-0 border border-tv-border overflow-hidden">
+        {ch.logoUrl && !imgErr ? (
+          <img
+            src={ch.logoUrl}
+            alt={ch.name}
+            className="w-full h-full object-cover"
+            onError={() => setImgErr(true)}
+          />
+        ) : (
+          <Tv className="w-5 h-5 text-muted-foreground" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-foreground group-hover:text-tv-red transition-colors truncate">
+          {ch.name}
+        </p>
+      </div>
+      <Play className="w-4 h-4 text-muted-foreground group-hover:text-tv-red transition-colors flex-shrink-0" />
+    </Link>
+  );
+}
+
+// Channel logo component with proper image handling
+function ChannelLogo({ logoUrl, name }: { logoUrl: string; name: string }) {
+  const [imgError, setImgError] = useState(false);
+
+  if (logoUrl && !imgError) {
+    return (
+      <div className="w-16 h-16 rounded-lg bg-black flex items-center justify-center flex-shrink-0 border border-tv-border overflow-hidden">
+        <img
+          src={logoUrl}
+          alt={name}
+          className="w-full h-full object-cover"
+          onError={() => setImgError(true)}
+        />
+      </div>
+    );
+  }
+  return (
+    <div className="w-16 h-16 rounded-lg bg-black flex items-center justify-center flex-shrink-0 border border-tv-border">
+      <Tv className="w-8 h-8 text-muted-foreground" />
+    </div>
+  );
+}
 
 const DEMO_CHANNEL = {
   id: BigInt(1),
@@ -90,32 +145,15 @@ export function WatchPage() {
               ) : displayChannel ? (
                 <div className="flex items-start gap-3">
                   {/* Channel logo */}
-                  <div className="w-14 h-14 rounded-lg bg-black flex items-center justify-center flex-shrink-0 border border-tv-border overflow-hidden">
-                    {displayChannel.logoUrl ? (
-                      <img
-                        src={displayChannel.logoUrl}
-                        alt={displayChannel.name}
-                        className="w-full h-full object-contain p-1"
-                        onError={(e) => {
-                          const el = e.currentTarget as HTMLImageElement;
-                          el.style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <Tv className="w-7 h-7 text-muted-foreground" />
-                    )}
-                  </div>
+                  <ChannelLogo
+                    logoUrl={displayChannel.logoUrl}
+                    name={displayChannel.name}
+                  />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h1 className="font-display font-bold text-xl text-foreground">
                         {displayChannel.name}
                       </h1>
-                      {displayChannel.isActive && (
-                        <Badge className="bg-tv-red/20 text-tv-red border-tv-red/30 text-[10px] uppercase font-bold tracking-wider flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-tv-red animate-pulse-red" />
-                          LIVE
-                        </Badge>
-                      )}
                     </div>
                     <p className="text-muted-foreground text-sm mt-0.5 capitalize">
                       {displayChannel.category.replace(/-/g, " ")}
@@ -154,40 +192,7 @@ export function WatchPage() {
                   </div>
                 ) : (
                   relatedChannels.map((ch) => (
-                    <Link
-                      key={ch.id.toString()}
-                      to="/watch/$id"
-                      params={{ id: ch.id.toString() }}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors group"
-                    >
-                      <div className="w-12 h-10 bg-black rounded flex items-center justify-center flex-shrink-0 border border-tv-border overflow-hidden">
-                        {ch.logoUrl ? (
-                          <img
-                            src={ch.logoUrl}
-                            alt={ch.name}
-                            className="w-full h-full object-contain p-1"
-                            onError={(e) => {
-                              const el = e.currentTarget as HTMLImageElement;
-                              el.style.display = "none";
-                            }}
-                          />
-                        ) : (
-                          <Tv className="w-5 h-5 text-muted-foreground" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground group-hover:text-tv-red transition-colors truncate">
-                          {ch.name}
-                        </p>
-                        {ch.isActive && (
-                          <span className="text-[10px] text-tv-red font-semibold uppercase flex items-center gap-1 mt-0.5">
-                            <span className="w-1 h-1 rounded-full bg-tv-red animate-pulse-red" />
-                            Live
-                          </span>
-                        )}
-                      </div>
-                      <Play className="w-4 h-4 text-muted-foreground group-hover:text-tv-red transition-colors flex-shrink-0" />
-                    </Link>
+                    <RelatedChannelItem key={ch.id.toString()} ch={ch} />
                   ))
                 )}
               </div>

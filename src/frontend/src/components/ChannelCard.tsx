@@ -36,7 +36,7 @@ export function ChannelCard({ channel, featured = false }: ChannelCardProps) {
           <img
             src={channel.logoUrl}
             alt={channel.name}
-            className="w-full h-full object-contain p-4"
+            className="w-full h-full object-cover"
             onError={() => setImgError(true)}
           />
         ) : (
@@ -51,16 +51,6 @@ export function ChannelCard({ channel, featured = false }: ChannelCardProps) {
             <Play className="w-5 h-5 text-white fill-white ml-0.5" />
           </div>
         </div>
-
-        {/* Live badge */}
-        {channel.isActive && (
-          <div className="absolute top-2 right-2">
-            <span className="flex items-center gap-1 bg-tv-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wide">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-red" />
-              LIVE
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Info */}

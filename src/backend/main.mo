@@ -6,9 +6,9 @@ import Runtime "mo:core/Runtime";
 import Array "mo:core/Array";
 import Order "mo:core/Order";
 import Set "mo:core/Set";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   // Types
   type AuthResult = {

@@ -778,21 +778,34 @@ function ApiManagementTab({ token }: ApiManagementTabProps) {
   const [enabled, setEnabled] = useState(false);
   const [apiToken, setApiToken] = useState("");
   const [showToken, setShowToken] = useState(false);
+  const [_saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (apiSettings) {
       setEnabled(apiSettings.enabled);
-      setApiToken(apiSettings.apiToken);
+      // Prefer the backend token, but also persist to localStorage as cache
+      if (apiSettings.apiToken) {
+        setApiToken(apiSettings.apiToken);
+        localStorage.setItem("apiToken", apiSettings.apiToken);
+        localStorage.setItem("apiEnabled", String(apiSettings.enabled));
+      } else {
+        // Fallback: restore from localStorage if backend has empty token
+        const cached = localStorage.getItem("apiToken");
+        if (cached) setApiToken(cached);
+        const cachedEnabled = localStorage.getItem("apiEnabled");
+        if (cachedEnabled !== null) setEnabled(cachedEnabled === "true");
+      }
     }
   }, [apiSettings]);
 
   const generateToken = () => {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const token = Array.from({ length: 48 }, () =>
+    const newToken = Array.from({ length: 48 }, () =>
       chars.charAt(Math.floor(Math.random() * chars.length)),
     ).join("");
-    setApiToken(token);
+    setApiToken(newToken);
+    setSaved(false);
   };
 
   const apiUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/api/channels?token=${apiToken}`;
@@ -808,6 +821,10 @@ function ApiManagementTab({ token }: ApiManagementTabProps) {
     try {
       const settings: ApiSettings = { enabled, apiToken };
       await updateApiSettings.mutateAsync({ settings, token });
+      // Persist to localStorage so token survives page refresh
+      localStorage.setItem("apiToken", apiToken);
+      localStorage.setItem("apiEnabled", String(enabled));
+      setSaved(true);
       toast.success("API settings saved");
     } catch {
       toast.error("Failed to save API settings");
